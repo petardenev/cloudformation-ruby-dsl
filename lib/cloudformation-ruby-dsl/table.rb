@@ -21,14 +21,20 @@ class Table
 
   def initialize(table_as_text)
     raw_header, *raw_data = Detabulator.new.detabulate table_as_text
-    header = raw_header.map(&:to_sym)
-    @records = raw_data.map { |row| Hash[header.zip(row)] }
+    @header = raw_header.map(&:to_sym)
+    @records = raw_data.map { |row| Hash[@header.zip(row)] }
   end
 
   # Selects all rows in the table which match the name/value pairs of the predicate object and returns
   # the single distinct value from those rows for the specified key.
   def get(key, predicate)
     distinct_values(filter(predicate), key, false)
+  end
+
+  # Select the headers as list. Argument(s) will be excluded from output.
+  def get_header(*exclude)
+    exclude.each{ |key| @header.delete(key) }
+    @header
   end
 
   # Selects all rows in the table which match the name/value pairs of the predicate object and returns
